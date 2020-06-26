@@ -2,7 +2,6 @@ import difflib
 import gc
 import os
 
-
 try: 
     from SourceFile import SourceFile
 except: from .SourceFile import SourceFile
@@ -82,10 +81,26 @@ class FileDiff(object):
         return before_indices, after_indices
 
     def get_changed_methods(self):
+        before_methods = list(self.before_file.methods.values())
+        after_methods = list(self.after_file.methods.values())
+        before_methods_changed = list(filter(lambda method: method.changed,list(self.before_file.methods.values())))
+        after_methods_changed = list(filter(lambda method: method.changed,list(self.after_file.methods.values())))
+        return [before_methods, before_methods_changed, after_methods, after_methods_changed]
+        # return self.after_file.get_changed_methods() + self.before_file.get_changed_methods()
+
+    """	
+    def get_changed_methods(self):  # EDIT
         # return list(filter(lambda method: method.changed, list(self.before_file.methods.values()) + list(self.after_file.methods.values())))
-        before_methods = filter(lambda method: method.changed,list(self.before_file.methods.values()))
-        after_methods = filter(lambda method: method.changed,list(self.after_file.methods.values()))
-        return before_methods, after_methods
+        before_methods = list(self.before_file.methods.values())
+        after_methods = list(self.after_file.methods.values())
+        before_methods_changed = list(filter(lambda method: method.changed,list(self.before_file.methods.values())))
+        after_methods_changed = list(filter(lambda method: method.changed,list(self.after_file.methods.values())))
+        return before_methods_changed, after_methods_changed
+    """
+
+    def get_changed_exists_methods(self):
+        return list(filter(lambda m: m.id in self.before_file.methods, self.after_file.get_changed_methods())) + \
+               list(filter(lambda m: m.id in self.after_file.methods, self.before_file.get_changed_methods()))
 
     def __repr__(self):
         return self.file_name

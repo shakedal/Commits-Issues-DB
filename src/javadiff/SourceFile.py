@@ -4,7 +4,7 @@ import javalang
 
 try: from methodData import MethodData
 except: from .methodData import MethodData
-
+import os
 
 class SourceFile(object):
     def __init__(self, contents, file_name, indices=()):
@@ -18,9 +18,11 @@ class SourceFile(object):
                 parser = javalang.parser.Parser(tokens)
                 parsed_data = parser.parse()
                 packages = list(map(operator.itemgetter(1), parsed_data.filter(javalang.tree.PackageDeclaration)))
+                classes = list(map(operator.itemgetter(1), parsed_data.filter(javalang.tree.ClassDeclaration)))
                 self.package_name = ''
                 if packages:
                     self.package_name = packages[0].name
+                    self.modified_names = map(lambda c: self.package_name + "." + c.name, classes)
                 self.methods = self.get_methods_by_javalang(tokens, parsed_data)
         except:
             raise
@@ -58,12 +60,12 @@ class SourceFile(object):
                 parameters = list(map(lambda parameter: parameter.type.name + ('[]' if parameter.varargs else ''), method.parameters))
                 method_data = MethodData(".".join([self.package_name, class_name, method.name]),
                                          method_start_position.line, method_end_position.line,
-                                         self.contents, self.changed_indices, method_used_lines, parameters, self.file_name)
+                                         self.contents, self.changed_indices, method_used_lines, parameters, self.file_name, method)
                 methods_dict[method_data.id] = method_data
         return methods_dict
 
     def get_changed_methods(self):
-        return filter(lambda method: method.changed, self.methods.values())
+        return list(filter(lambda method: method.changed, self.methods.values()))
 
     def replace_method(self, method_data):
         assert method_data.method_name in self.methods
@@ -75,8 +77,3 @@ class SourceFile(object):
 
     def __repr__(self):
         return self.file_name
-
-
-if __name__ == "__main__":
-    sf = SourceFile(open(r"C:\amirelm\component_importnace\data\maven\clones\1205_1bdeeccc\maven-artifact\src\main\java\org\apache\maven\artifact\resolver\DefaultArtifactCollector.java").readlines(), "DefaultArtifactCollector.java")
-    pass
