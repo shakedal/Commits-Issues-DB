@@ -4,8 +4,8 @@ import Debug
 
 JQL = 'project = LANG AND issuetype = "New Feature" AND status = Closed'
 
-
 def create_matrix(jira_issues, git_commits):
+    # TODO: check if we match by other commit fields other than commit's name
     matrix = []
     for commit in git_commits:
         code = g.get_code_file(commit)
@@ -16,9 +16,9 @@ def create_matrix(jira_issues, git_commits):
             issue_id = j.get_issue_id(issue)
             index = commit_name.find(issue_id)
             if index != -1:
-                if len(commit_name) == index + len(issue_id):
+                if len(commit_name) == index + len(issue_id):  # last word in commit's name
                     matrix.append((issue, commit))
-                else:
+                else:  # check if this is the issue or shorter ID
                     next_char = commit_name[index + len(issue_id)]
                     if not next_char.isdigit():
                         matrix.append((issue, commit))  # add to Matrix
@@ -27,6 +27,7 @@ def create_matrix(jira_issues, git_commits):
     return matrix
 
 
+"""
 def matrix_to_csv(matrix, f_name):
     with open(f_name, "w", encoding="utf-8") as f:
         f.write("#, issue id, issue summary, issue description, commit summary, code files, test files\n")
@@ -68,4 +69,5 @@ def matrix_to_csv(matrix, f_name):
             count += 1
             
         f.close
+"""
 

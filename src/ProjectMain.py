@@ -24,8 +24,6 @@ def main():
     m.matrix_to_csv(matrix_features, csv_features)
     m.matrix_to_csv((matrix_bugs_improvements, csv_bugs_improvements))
 
-    # TODO: add to DB
-
 
 if __name__ == '__main__':
     main()

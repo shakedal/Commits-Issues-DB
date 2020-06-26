@@ -4,6 +4,9 @@ import Debug
 
 jira = JIRA(r"http://issues.apache.org/jira")
 
+def set_jira(path):
+    global jira
+    jira = JIRA(path)
 
 def get_issues_list(jql):
     # get issues relevant issues by jql
@@ -21,25 +24,24 @@ def get_issues_list(jql):
             else:
                 break
             block_num += 1
-        if Debug.mode():
-            print("issue list done")
+        if Debug.mode(): print("**issue list done")
         return issues
 
     except JIRAError:
+        if Debug.mode(): print("JIRA Connection ERROR!!!")
         return []
-    return
-
 
 def get_issue_id(issue):
     return issue.key
 
-
 def get_issue_summary(issue):
     return issue.fields.summary
-
 
 def get_issue_description(issue):
     return issue.fields.description
 
+def get_issue_status(issue):
+    return issue.fields.status.name
 
-
+def get_issue_type(issue):
+    return issue.fields.issuetype.name
