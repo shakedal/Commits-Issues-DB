@@ -2,6 +2,7 @@ import sqlite3
 import GitCommits as g
 import JiraIssues as j
 import JavaAnalyzer as a
+import Debug
 
 
 def get_connection(path):
@@ -11,6 +12,8 @@ def close_connection(conn):
     if conn: conn.close()
 
 def insert_project(conn, projectName, JiraProjectId, GitRepositoryPath):
+    if Debug.mode:
+        print("**insert project {0} the DB".format(projectName))
     try:
         with conn:
             cur = conn.cursor()
@@ -21,18 +24,20 @@ def insert_project(conn, projectName, JiraProjectId, GitRepositoryPath):
         print("Error %s:" % e.args[0])
 
 def insert_issue(conn, issue, projectName):
-    # TODO: add time
     issue_id = j.get_issue_id(issue)
     issue_type = j.get_issue_type(issue)
     summary = j.get_issue_summary(issue)
     desc = j.get_issue_description(issue)
     status = j.get_issue_status(issue)
+    time = j.get_issue_creation_date(issue)
 
+    if Debug.mode:
+        print("**insert issue #{0} to DB".format(issue_id))
     try:
         with conn:
             cur = conn.cursor()
-            SQL = "INSERT INTO JiraIssues (IssueID, IssueType, ProjectName, Summary, Description, Status) VALUES (?,?,?,?,?,?)"
-            cur.execute(SQL, (issue_id, issue_type, projectName, summary, desc, status))
+            SQL = "INSERT INTO JiraIssues (IssueID, IssueType, ProjectName, Summary, Description, Status, Date) VALUES (?,?,?,?,?,?,?)"
+            cur.execute(SQL, (issue_id, issue_type, projectName, summary, desc, status, time))
 
     except sqlite3.Error as e:
         print("Error %s:" % e.args[0])
@@ -45,6 +50,8 @@ def insert_commit(conn, commit, projectName):
     date = g.get_commit_date(commit)
     parent_id = g.get_commit_parent_id(commit)
 
+    if Debug.mode:
+        print("**insert commit {0} to DB".format(commit_id))
     try:
         with conn:
             cur = conn.cursor()
@@ -68,6 +75,8 @@ def insert_commit(conn, commit, projectName):
 def insert_linkage(conn, commit, issue):
     issue_id = j.get_issue_id(issue)
     commit_id = g.get_commit_id(commit)
+    if Debug.mode:
+        print("**insert matching: commit {0} & issue {1} to DB".format(commit_id, issue_id))
     try:
         with conn:
             cur = conn.cursor()
@@ -133,11 +142,11 @@ def insert_line(conn, commit, method_name, line):
 if __name__ == '__main__':
     try:
         db_path = r"C:\Users\salmo\Desktop\DnD - Matrix\db\CommitIssueDB.db"
-        # issue1 = j.get_issues_list("key = 'LANG-1534'")[0]
+        issue1 = j.get_issues_list("key = 'LANG-1534'")[0]
         con = get_connection(db_path)
         # insert_project(con, "TEST_project", "T_jiraId", "T_repositoryPath")
-        # insert_issue(con, issue1, "TEST_project")
-        commit1 = g.get_commit_by_id("63802bf3d5423a8abdc098549b472622a7a43772")
+        insert_issue(con, issue1, "TEST_project")
+        commit1 = g.get_commit_by_id("a6a2d04877d91a4c7cfff889bb64e2627ca60994")
         insert_commit(con, commit1, "TEST_project")
         close_connection(con)
     except ValueError:

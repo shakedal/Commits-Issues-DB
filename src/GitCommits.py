@@ -62,8 +62,7 @@ def get_commit_message(commit):
 
 def get_commit_date(commit):
     unix = commit.committed_date
-    # return time.ctime(unix)
-    return time.strftime("%D %H:%M", time.localtime(unix))
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(unix))
 
 def get_commit_parent_id(commit):
     return get_commit_id(commit.parents[0])
@@ -148,3 +147,6 @@ def test_diff(commit):
     return relevant_data
 """
 
+if __name__ == '__main__':
+    commit = get_commit_by_id("c96a705446e6dd3b5a7224a7127036add77f7403")
+    print(get_commit_changes(commit))

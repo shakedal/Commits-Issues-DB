@@ -33,8 +33,8 @@ def analyze_changes(old_lines, new_lines):
     changes = list()
 
     for line in diff:
-        if Debug.mode:
-            print(line)
+        # if Debug.mode:
+        #     print(line)
         if line[0] == '-':
             changes.append(ChangedLine("OLD", count_old, line[1:], True, old_lines[count_old].decls))
             count_old += 1
