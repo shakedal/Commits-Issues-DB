@@ -1,3 +1,4 @@
+
 try:
     from FileDiff import FileDiff
 except ImportError:
@@ -5,5 +6,13 @@ except ImportError:
 
 
 class CommitsDiff(object):
-    def __init__(self, commit_a, commit_b):
-        self.diffs = list(map(lambda d: FileDiff(d, commit_b.hexsha), commit_a.tree.diff(commit_b.tree, ignore_blank_lines=True, ignore_space_at_eol=True)))
+    def __init__(self, child, parent):
+        self.diffs = list(CommitsDiff.diffs(child, parent))
+
+    @staticmethod
+    def diffs(child, parent):
+        for d in parent.tree.diff(child.tree, ignore_blank_lines=True, ignore_space_at_eol=True):
+            try:
+                yield FileDiff(d, child.hexsha)
+            except:
+                pass

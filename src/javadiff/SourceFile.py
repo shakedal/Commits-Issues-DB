@@ -1,10 +1,28 @@
 import operator
 
 import javalang
+from javalang.tree import ClassDeclaration
 
 try: from methodData import MethodData
 except: from .methodData import MethodData
 import os
+
+
+def extract_classes_names(parsed_data, package):
+    classes = list(parsed_data.filter(javalang.tree.ClassDeclaration))  # tuple (position,class itself)
+    names = list()
+    for full_class in classes:
+        class_declaration = full_class[1]
+        position = full_class[0]
+        if len(position) > 2:  # has parent class
+            index = class_name.find('.')
+            if index != -1:
+                class_name = class_name[0:index]
+            class_name = class_name + "." + class_declaration.name
+        else:
+            class_name = class_declaration.name
+        names.append(package + "." + class_name)
+    return names
 
 class SourceFile(object):
     def __init__(self, contents, file_name, indices=()):
@@ -22,6 +40,7 @@ class SourceFile(object):
                 self.package_name = ''
                 if packages:
                     self.package_name = packages[0].name
+                    # self.modified_names = extract_classes_names(parsed_data)
                     self.modified_names = map(lambda c: self.package_name + "." + c.name, classes)
                 self.methods = self.get_methods_by_javalang(tokens, parsed_data)
         except:
@@ -46,8 +65,19 @@ class SourceFile(object):
         seperators = list(filter(lambda token: isinstance(token, javalang.tokenizer.Separator) and token.value in "{}",
                             tokens))
         methods_dict = dict()
-        for class_declaration in map(operator.itemgetter(1), parsed_data.filter(javalang.tree.ClassDeclaration)):
-            class_name = class_declaration.name
+
+        classes_full = list(parsed_data.filter(javalang.tree.ClassDeclaration))  # tuple (position,class itself)
+        for full_class in classes_full:
+            class_path = full_class[0]
+            class_declaration = full_class[1]
+            if len(class_path) > 2:  # has parent class
+                index = class_name.find('.')
+                if index != -1:
+                    class_name = class_name[0:index]
+                class_name = class_name + "." + class_declaration.name
+            else:
+                class_name = class_declaration.name
+
             methods = list(map(operator.itemgetter(1), class_declaration.filter(javalang.tree.MethodDeclaration)))
             constructors = list(map(operator.itemgetter(1), class_declaration.filter(javalang.tree.ConstructorDeclaration)))
             for method in methods + constructors:

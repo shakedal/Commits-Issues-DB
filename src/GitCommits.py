@@ -74,8 +74,11 @@ def get_commit_changes(commit):
         commit = repo.commit(commit)
 
     relevant_data = []
-    [before_methods, changed_methods_before, after_methods, changed_methods_after] = d.get_changed_methods(repo_path,
-                                                                                                           commit)  # amir's - return all methods relevant to the commit
+    [before_methods, changed_methods_before, after_methods, changed_methods_after] = d.get_changed_methods(repo_path, commit)  # amir's - return all methods relevant to the commit
+    print("BEFORE:")
+    print(changed_methods_before)
+    print("AFTER:")
+    print(changed_methods_after)
     changed_before_dict = {m.method_name_parameters: (m.file_name, m.source_lines) for m in changed_methods_before}
     before_dict = {m.method_name_parameters: (m.file_name, m.source_lines) for m in before_methods}
     for new_method in changed_methods_after:
@@ -148,5 +151,7 @@ def test_diff(commit):
 """
 
 if __name__ == '__main__':
-    commit = get_commit_by_id("c96a705446e6dd3b5a7224a7127036add77f7403")
-    print(get_commit_changes(commit))
+    commit = get_commit_by_id("bdb5d9723056941a0a29aabc2eaf81b2c96956b5")
+    changes = get_commit_changes(commit)
+    print(len(changes))
+    print(changes)
