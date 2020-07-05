@@ -25,7 +25,7 @@ if __name__ == '__main__':
     if Debug.mode:
         print("creating issue lists")
     j.set_jira(JIRA_PATH)
-    jql_features = 'project = {0} AND ssuetype = "New Feature" AND statusCategory = Done'.format(JIRA_PROJECT_ID)
+    jql_features = 'project = {0} AND issuetype = "New Feature" AND statusCategory = Done'.format(JIRA_PROJECT_ID)
     jql_bugs_improvements = 'project = {0} AND issuetype in (Bug, Improvement) AND statusCategory = Done'.format(JIRA_PROJECT_ID)
 
     issues_features = j.get_issues_list(jql_features)
