@@ -1,14 +1,14 @@
 בהינתן אישיו נקבל את כל מימושים והטסטים שנדרשנו לכתוב כדי לספק את האילוץ
 
-SELECT CommitID, Path, FileType --all files of the commit
-FROM CommitFiles
-WHERE CommitID in (
+SELECT M.*, F.Path, F.FileType --all methods of the commit
+FROM CommitFiles as F, CommitChanges as C, MethodData as M
+WHERE F.CommitID in (
 	SELECT CommitID --all commits relevant to the issue
 	FROM CommitsIssuesLinkage 
-	WHERE IssueID = 'issue_id') as F
-JOIN
-SELECT MethodName as M FROM CommitChanges
-ON ????????????
+	WHERE IssueID = 'issue_id')
+AND (C.OldPath = F.Path OR C.NewPath = F.Path)
+AND F.CommitID = C.CommitID
+AND M.CommitID = C.CommitID AND M.MethodName = C.MethodName
 
 
 קישור אישיואים שקשורים אחד לשני עי מתודה:
@@ -38,7 +38,6 @@ WHERE IssueID in (
 		FROM CommitChanges
 		WHERE MethodName = 'method_name'))
 ORDER BY Date;
-
 
 
 בהינתן שם של מתודה כל הטסטים שרלוונטיים למתודה הזאת
